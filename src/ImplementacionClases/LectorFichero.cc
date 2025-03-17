@@ -19,17 +19,17 @@ LectorFichero::~LectorFichero() {
   fichero_entrada_.clear();
 }
 
-std::multimap<char, std::pair<char, int>> LectorFichero::getDatos() {
-  std::multimap<char, std::pair<char, int>> datos;
+std::pair<std::multimap<std::string, std::pair<std::string, int>>, int> LectorFichero::getDatos() {
+  std::multimap<std::string, std::pair<std::string, int>> datos;
   std::ifstream fichero(fichero_entrada_);
   if (!fichero.is_open()) {
     std::cerr << "Error al abrir el fichero de entrada." << std::endl;
     exit(1);
   }
-  char origen, destino;
+  std::string origen, destino;
   int peso;
   int num_nodos;
-  std::set<char> nodos_unicos; // Para almacenar los nodos únicos
+  std::set<std::string> nodos_unicos; // Para almacenar los nodos únicos
   if (!(fichero >> num_nodos)) {
     std::cerr << "Error: No se pudo leer el número de nodos." << std::endl;
     exit(1);
@@ -47,5 +47,5 @@ std::multimap<char, std::pair<char, int>> LectorFichero::getDatos() {
     exit(1);
   }
 
-  return datos;
+  return {datos, num_nodos};
 }

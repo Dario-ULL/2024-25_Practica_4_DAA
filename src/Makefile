@@ -1,6 +1,6 @@
 # Variables
 CC = g++
-CFLAGS = -Wall -std=c++11
+CFLAGS = -Wall -std=c++17
 OBJ_DIR = ImplementacionClases
 INC_DIR = Clases
 SRC_DIR = $(OBJ_DIR)
@@ -9,9 +9,15 @@ EXEC = main
 
 # Archivos objeto, con todos los archivos fuente de .cc a .o
 OBJ_FILES = $(OBJ_DIR)/LectorFichero.o \
+            $(OBJ_DIR)/Grafo.o \
+						$(OBJ_DIR)/Algoritmos.o \
+						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoFuerzaBruta.o \
+						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoVoraz.o \
+						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoProgramacionDinamica.o \
+
 
 # Regla por defecto
-all: $(EXEC) clean
+all: $(EXEC)
 
 # Regla para compilar el ejecutable
 $(EXEC): $(OBJ_FILES) $(MAIN_SRC)

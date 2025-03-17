@@ -25,7 +25,7 @@ class LectorFichero {
  public:    
   LectorFichero(std::string fichero_entrada);
   ~LectorFichero();
-  std::multimap<char, std::pair<char, int>> getDatos();
+  std::pair<std::multimap<std::string, std::pair<std::string, int>>, int> getDatos();
 };
 
 #endif
