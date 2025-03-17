@@ -27,10 +27,10 @@ class AlgoritmoProgramacionDinamica : public Algoritmos {
   int tsp(int mask, int pos, const std::vector<std::string>& cities, const std::vector<std::vector<int>>& dist, std::vector<std::vector<int>>& dp, 
          std::vector<std::vector<int>>& next_city, int n);
   std::vector<int> reconstruirCamino(int n, const std::vector<std::vector<int>>& next_city);
+  int getDistancia(std::string origen, std::string destino);
  public:
   AlgoritmoProgramacionDinamica(Grafo grafo);
   std::vector<std::string> resolver(std::string nodo_inicio);
-  int getDistancia(std::string origen, std::string destino);
 };
 
 #endif

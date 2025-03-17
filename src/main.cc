@@ -44,41 +44,43 @@ leerArchivosTxt(const std::string& directorio) {
 }
 
 std::vector<std::string> resolverConTiempo(Algoritmos* algoritmo, const std::string& inicio, int limiteTiempoSegundos) {
-    // Variable para almacenar la solución parcial
     std::vector<std::string> solucionParcial;
     algoritmo->cancelado = false;
-    // Ejecutar el algoritmo de manera asincrónica
     auto futuro = std::async(std::launch::async, [algoritmo, inicio, &solucionParcial]() {
-        // Llamar al algoritmo en el hilo secundario
-
-        try {
-            solucionParcial = algoritmo->resolver(inicio);
-        } catch (const std::exception& e) {
-            std::cerr << e.what() << std::endl;
-        }
+      try {
+        solucionParcial = algoritmo->resolver(inicio);
+      } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+      }
     });
-    // Esperar con límite de tiempo
     if (futuro.wait_for(std::chrono::seconds(limiteTiempoSegundos)) == std::future_status::timeout) {
-        std::cout << "Ejecución cancelada debido a tiempo excedido." << std::endl;
-        algoritmo->cancelado = true;  // Cancelar la ejecución
-        // Aquí puedes manejar la cancelación, dependiendo de cómo lo tengas implementado en el algoritmo
-    } else {
-        std::cout << "Algoritmo completado en menos de " << limiteTiempoSegundos << " segundos." << std::endl;
+        algoritmo->cancelado = true;
     }
-
-    // Recoger el resultado del futuro (esto asegura que el futuro se haya completado)
     futuro.get(); 
-
-    return solucionParcial; // Devolvemos la solución parcial calculada hasta el momento
+    return solucionParcial;
 }
 
+void imprimirTabla(const std::string& fichero, const std::vector<std::tuple<std::string, double, double>>& resultados) {
+  const int ancho = 25;
+  std::cout << "\nFichero: " << fichero << "\n";
+  std::cout << std::setw(ancho) << "Algoritmo" << std::setw(ancho) << "Tiempo (s)" << std::setw(ancho) << "Valor del Camino" << "\n";
+  std::cout << std::string(3 * ancho, '-') << "\n";
+  
+  for (const auto& [nombre, tiempo, valor] : resultados) {
+    if (tiempo >= 300) {
+      std::cout << std::setw(ancho) << nombre << std::setw(ancho) << "EXCESIVO" << std::setw(ancho) << valor << "\n";
+    } else {
+      std::cout << std::setw(ancho) << nombre << std::setw(ancho) << tiempo << std::setw(ancho) << valor << "\n";
+    }
+  }
+  std::cout << std::endl;
+}
 
 int main (int argc, char *argv[]) {
-  std::string directorio;  // Si se proporciona un argumento, se usa como directorio
+  std::string directorio;
   if (argc > 1) {
     directorio = argv[1];
   } else {
-    // Si no, se usa el directorio actual
     directorio = std::filesystem::current_path().string();
   }
   if (!std::filesystem::exists(directorio) || !std::filesystem::is_directory(directorio)) {
@@ -86,53 +88,21 @@ int main (int argc, char *argv[]) {
     return 1;
   }
   std::vector<std::string> ficheros = leerArchivosTxt(directorio);
-
-
-
   for (const std::string& fichero : ficheros) {
-    std::cout << "Fichero: " << fichero << std::endl;
+    std::vector<std::tuple<std::string, double, double>> resultados;
     LectorFichero lector(fichero);
     Grafo grafo(lector.getDatos());
-    Algoritmos* algoritmo;
-    algoritmo = new AlgoritmoVoraz(grafo);
-    std::cout << "Solucion Algoritmo Voraz:" << std::endl;
-    auto inicioTiempo = std::chrono::high_resolution_clock::now();
-    std::vector<std::string> solucion = resolverConTiempo(algoritmo, "A", 5*60);
-    auto finTiempo = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> tiempoTranscurrido = finTiempo - inicioTiempo;
-    std::cout << "Tiempo transcurrido: " << tiempoTranscurrido.count() << " segundos" << std::endl;
-    for (std::string nodo : solucion) {
-      std::cout << nodo << " ";
+    std::vector<std::string> algoritmos = {"Algoritmo Voraz", "Fuerza Bruta", "Prog. Dinámica"};
+    std::vector<Algoritmos*> instancias = {new AlgoritmoVoraz(grafo), new AlgoritmoFuerzaBruta(grafo), new AlgoritmoProgramacionDinamica(grafo)};
+    for (size_t i = 0; i < algoritmos.size(); i++) {
+      auto inicioTiempo = std::chrono::high_resolution_clock::now();
+      std::vector<std::string> solucion = resolverConTiempo(instancias[i], "A", 5 * 60);
+      auto finTiempo = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<double> tiempoTranscurrido = finTiempo - inicioTiempo;
+      double valorCamino = grafo.valorCamino(solucion);
+      resultados.emplace_back(algoritmos[i], tiempoTranscurrido.count(), valorCamino);
     }
-
-    std::cout << std::endl;
-    std::cout << "Valor del camino: " << grafo.valorCamino(solucion) << std::endl  << std::endl;
-    algoritmo = new AlgoritmoFuerzaBruta(grafo);
-    std::cout << "Solucion Algoritmo Fuerza Bruta:" << std::endl;
-    inicioTiempo = std::chrono::high_resolution_clock::now();
-    solucion = resolverConTiempo(algoritmo, "A", 5*60);
-    finTiempo = std::chrono::high_resolution_clock::now();
-    tiempoTranscurrido = finTiempo - inicioTiempo;
-    std::cout << "Tiempo transcurrido: " << tiempoTranscurrido.count() << " segundos" << std::endl;
-    for (std::string nodo : solucion) {
-      std::cout << nodo << " ";
-    }  
-    std::cout << std::endl;
-    std::cout << "Valor del camino: " << grafo.valorCamino(solucion) << std::endl << std::endl;
-    std::cout << "Solucion Algoritmo Programacion Dinamica:" << std::endl;
-    algoritmo = new AlgoritmoProgramacionDinamica(grafo);
-    inicioTiempo = std::chrono::high_resolution_clock::now();
-    solucion = resolverConTiempo(algoritmo, "A", 5*60);
-    finTiempo = std::chrono::high_resolution_clock::now();
-    tiempoTranscurrido = finTiempo - inicioTiempo;
-    std::cout << "Tiempo transcurrido: " << tiempoTranscurrido.count() << " segundos" << std::endl;
-    for (std::string nodo : solucion) {
-      std::cout << nodo << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "Valor del camino: " << grafo.valorCamino(solucion) << std::endl << std::endl;
+    imprimirTabla(fichero, resultados);
   }
-
-
   return 0;
 }
