@@ -15,6 +15,7 @@
 #include "Clases/TiposAlgoritmos/AlgoritmoVoraz.h"
 #include "Clases/TiposAlgoritmos/AlgoritmoFuerzaBruta.h"
 #include "Clases/TiposAlgoritmos/AlgoritmoProgramacionDinamica.h"
+#include "Clases/TiposAlgoritmos/AlgoritmoVorazMedio.h"
 
 #include <iostream>
 #include <string>
@@ -26,6 +27,9 @@
 #include <atomic>
 #include <stdexcept>
 #include <future>
+
+// Constate para limitar el tiempo de ejecucion en 300 segundos (5 minutos)
+const int LIMITE_EJECUCION = 300;
 
 std::vector<std::string>
 leerArchivosTxt(const std::string& directorio) {
@@ -92,11 +96,11 @@ int main (int argc, char *argv[]) {
     std::vector<std::tuple<std::string, double, double>> resultados;
     LectorFichero lector(fichero);
     Grafo grafo(lector.getDatos());
-    std::vector<std::string> algoritmos = {"Algoritmo Voraz", "Fuerza Bruta", "Prog. Dinámica"};
-    std::vector<Algoritmos*> instancias = {new AlgoritmoVoraz(grafo), new AlgoritmoFuerzaBruta(grafo), new AlgoritmoProgramacionDinamica(grafo)};
+    std::vector<std::string> algoritmos = {"Algoritmo Voraz", "Fuerza Bruta", "Prog. Dinámica", "Algoritmo Voraz Medio"};
+    std::vector<Algoritmos*> instancias = {new AlgoritmoVoraz(grafo), new AlgoritmoFuerzaBruta(grafo), new AlgoritmoProgramacionDinamica(grafo), new AlgoritmoVorazMedio(grafo)};
     for (size_t i = 0; i < algoritmos.size(); i++) {
       auto inicioTiempo = std::chrono::high_resolution_clock::now();
-      std::vector<std::string> solucion = resolverConTiempo(instancias[i], "A", 5 * 60);
+      std::vector<std::string> solucion = resolverConTiempo(instancias[i], "A", LIMITE_EJECUCION);
       auto finTiempo = std::chrono::high_resolution_clock::now();
       std::chrono::duration<double> tiempoTranscurrido = finTiempo - inicioTiempo;
       double valorCamino = grafo.valorCamino(solucion);

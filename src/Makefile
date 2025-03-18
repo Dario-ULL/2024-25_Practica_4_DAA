@@ -14,6 +14,8 @@ OBJ_FILES = $(OBJ_DIR)/LectorFichero.o \
 						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoFuerzaBruta.o \
 						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoVoraz.o \
 						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoProgramacionDinamica.o \
+						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoVorazMedio.o \
+
 
 
 # Regla por defecto
