@@ -10,6 +10,7 @@
 */
 
 #include "Clases/LectorFichero.h"
+#include "Clases/GeneradorGrafo.h"
 #include "Clases/Grafo.h"
 #include "Clases/Algoritmos.h"
 #include "Clases/TiposAlgoritmos/AlgoritmoVoraz.h"
@@ -81,12 +82,28 @@ void imprimirTabla(const std::string& fichero, const std::vector<std::tuple<std:
 }
 
 int main (int argc, char *argv[]) {
-  std::string directorio;
+  std::string directorio = std::filesystem::current_path().string();
+  if (argc > 2) {
+    std::cout << argv[1] << "\n";
+    if (std::string(argv[1]) == "-g") {
+      if (argc == 4) {
+        directorio = argv[3];
+        if (!std::filesystem::exists(directorio) || !std::filesystem::is_directory(directorio)) {
+          std::cerr << "El directorio especificado no existe o no es valido.\n";
+          return 1;
+        }
+      }
+      std::cout << "Generando grafo...\n";
+      GeneradorGrafo generador(directorio);
+      generador.generarGrafo(std::stoi(argv[2]));
+      std::cout << "Grafo generado.\n";
+      return 0;
+    }
+    return -1;
+  }
   if (argc > 1) {
     directorio = argv[1];
-  } else {
-    directorio = std::filesystem::current_path().string();
-  }
+  } 
   if (!std::filesystem::exists(directorio) || !std::filesystem::is_directory(directorio)) {
     std::cerr << "El directorio especificado no existe o no es valido.\n";
     return 1;

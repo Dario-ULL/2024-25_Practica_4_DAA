@@ -9,6 +9,7 @@ EXEC = main
 
 # Archivos objeto, con todos los archivos fuente de .cc a .o
 OBJ_FILES = $(OBJ_DIR)/LectorFichero.o \
+						$(OBJ_DIR)/GeneradorGrafo.o \
             $(OBJ_DIR)/Grafo.o \
 						$(OBJ_DIR)/Algoritmos.o \
 						$(OBJ_DIR)/TiposAlgoritmos/AlgoritmoFuerzaBruta.o \
